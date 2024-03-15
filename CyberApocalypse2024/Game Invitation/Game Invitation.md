@@ -421,11 +421,9 @@ function lyEK() {
 
 At first glance, this appears to be some sort of text decoder and decryptor. I admit I am a little out of my depth here as it relates to encoding and encryption algorithms, so I had ChatGPT describe what these functions were doing.
 
-Here's its response:
-
-This code seems to be implementing various functions related to encoding and decoding operations. Let's break down each function:
-
 >### ChatGPT Response
+>This code seems to be implementing various functions related to encoding and decoding operations. Let's break down each function:
+>
 >af5Q(r): This function takes a single character r and returns a numerical value based on some conditions. It seems to be part of a decoding process.
 >
 >JrvS(r): This function decodes a base64-encoded string r. It first checks if the length of the input string is divisible by 4, then determines the number of padding characters ('=') and calculates the length of the resulting array. It then iterates through the input string, decoding each group of four characters into three bytes by utilizing the af5Q function. The decoded bytes are stored in an array n, which is then returned.
