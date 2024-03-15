@@ -2,7 +2,7 @@
 
 Data Siege is a medium forensics challenge from the Cyber Apocalypse 2024 CTF by HackTheBox. 
 
-### Enumeration
+## Enumeration
 
 We are given a packet capture - `capture.pacp`. Opening this in wireshark, we can find that this is a relatively small capture (124 packets), that contains mainly TCP traffic with some HTTP traffic as well. Looking at the HTTP traffic, we find just three requests to IP address 10.10.10.21.
 
@@ -52,7 +52,7 @@ Taking a closer look at the functions shows that we have access to the source co
 
 Armed with this functionality, we should be able to easily decrypt the encrypted communications that we saw earlier in the network capture.
 
-### Solution
+## Solution
 
 We could transcribe this into python (which is a good exercise), but we can also utilize dnspy to use the binary itself to decrypt it's own communications.
 
