@@ -6,11 +6,11 @@ Data Siege is a medium forensics challenge from the Cyber Apocalypse 2024 CTF by
 
 We are given a packet capture - `capture.pacp`. Opening this in wireshark, we can find that this is a relatively small capture (124 packets), that contains mainly TCP traffic with some HTTP traffic as well. Looking at the HTTP traffic, we find just three requests to IP address 10.10.10.21.
 
-![[Pasted image 20240314214606.png]]
+![Pasted image 20240314214606.png]
 
 There are two requests to an endpoint with a seemingly random name, as well as a request to get a file named `aQ4caZ.exe`. This is particularly interesting, so let's take a closer look. In the response, we can see that the media type is indeed `application/x-msdownload`, indicating that this is a binary file. So we will export this file to our disk using the `Export Objects` function of wireshark.
 
-![[Pasted image 20240314215305.png]]
+![Pasted image 20240314215305.png]
 
 The file we want to download is right there and easy to find, but if the filename was mangled in some way we can always reference the packet number (56) to find the correct file.
 
@@ -18,15 +18,15 @@ We will hold off on analyzing that binary for now, let's look at the rest of the
 
 Immediately following the last GET request and exe download, we can see that the local host is beginning to communicate to port 1234 on the remote host (IP address 10.10.10.21).
 
-![[Pasted image 20240314215826.png]]
+![Pasted image 20240314215826.png]
 
 Considering that we just saw an executable download, we can start to formulate a theory on what might be happening. It is likely that the binary that was just downloaded has been executed, and is now reaching out to the remote host. Let's inspect the TCP stream to see if this can be confirmed.
 
-![[Pasted image 20240314220032.png]]
+![Pasted image 20240314220032.png]
 
 Right away this might not be what we expected to see, but soon we will realize that this is encoded or encrypted traffic between our two hosts. We have what, at first glance, looks like base64 encoded traffic. Taking a string and decoding it shows that unfortunately this won't be so easy.
 
-![[Pasted image 20240314220416.png]]
+![Pasted image 20240314220416.png]
 
 Obviously this traffic is encrypted.
 
@@ -38,7 +38,7 @@ This is great news because we have access to tools that allow us to see exactly 
 
 Let's transfer this over to an instance of FlareVM and open it up in dnspy.
 
-![[Pasted image 20240314221050.png]]
+![Pasted image 20240314221050.png]
 
 Now we can see what this is and what it is doing. 
 
@@ -48,7 +48,7 @@ Looking up ezratclient brings us to a github link where the original project is 
 
 Taking a closer look at the functions shows that we have access to the source code of the decrypt function.
 
-![[Pasted image 20240314221837.png]]
+![Pasted image 20240314221837.png]
 
 Armed with this functionality, we should be able to easily decrypt the encrypted communications that we saw earlier in the network capture.
 
@@ -60,7 +60,7 @@ We will head over to the main function and delete the original malware functiona
 
 `NOTE: If you are writing your own decrypt script, the encryption key can be found in the Constantes Util. You can find this by going to the decrypt function and following the Constantes reference until dnspy points you to the key`
 
-![[Pasted image 20240314222853.png]]
+![Pasted image 20240314222853.png]
 
 Now we can start to decrypt the communications found in the network capture.
 
@@ -68,7 +68,7 @@ Let's paste in the first command:
 
 `24.1BhuY4/niTopIBHAN6vvmQ==`
 
-![[Pasted image 20240314223400.png]]
+![Pasted image 20240314223400.png]
 
 This gives us an error, but the malware developer was kind enough to provide an error statement - using the error statement as a hint, we can see that the `24.` at the head of this string is what's erroring the function
 
@@ -76,17 +76,17 @@ Actually, if we look at other pieces of the code, this `24.` is actually denotin
 
 Trying again without the `24.`:
 
-![[Pasted image 20240314223708.png]]
+![Pasted image 20240314223708.png]
 
 We can see that the command is getinfo.
 
 Let's take a look at the response:
 
-![[Pasted image 20240314223822.png]]
+![Pasted image 20240314223822.png]
 
 Interesting, it is returning quite a lot of information about the current host. getinfo isn't a standard command in the Windows OS, so it must be something custom written in the code. We can find this in `EZRATClient.Core.CommandParser`:
 
-![[Pasted image 20240314224343.png]]
+![Pasted image 20240314224343.png]
 
 Now that we know how it is executing commands, let's return to decrypting the communications:
 
@@ -125,11 +125,11 @@ Got the second flag part!
 
 And further down in plain text, we have an encoded powershell command:
 
-![[Pasted image 20240314230038.png]]
+![Pasted image 20240314230038.png]
 
 After decoding the command:
 
-![[Pasted image 20240314230233.png]]
+![Pasted image 20240314230233.png]
 
 We find the third flag in a powershell command that establishes persistence by creating a scheduled task to execute `4fva.exe` daily at 2am.
 
@@ -141,7 +141,7 @@ Let's also take a quick look back at the beginning of the network capture. There
 
 Looking up port 61616 in a search engine shows results for an application called `ActiveMQ`. The headers for this traffic can be found by following the TCP stream for the traffic:
 
-![[Pasted image 20240314232502.png]]
+![Pasted image 20240314232502.png]
 
 We can see that the version number is `5.18.2`. Searching for known vulnerabilities in ActiveMQ, we find CVE-2023-46604, which this version is vulnerable to. More information can be found at https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-46604
 
