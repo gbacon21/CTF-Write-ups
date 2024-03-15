@@ -6,7 +6,7 @@ Data Siege is a medium forensics challenge from the Cyber Apocalypse 2024 CTF by
 
 We are given a packet capture - `capture.pacp`. Opening this in wireshark, we can find that this is a relatively small capture (124 packets), that contains mainly TCP traffic with some HTTP traffic as well. Looking at the HTTP traffic, we find just three requests to IP address 10.10.10.21.
 
-![Pasted image 20240314214606.png]
+![Attachments/Pasted image 20240314214606.png]
 
 There are two requests to an endpoint with a seemingly random name, as well as a request to get a file named `aQ4caZ.exe`. This is particularly interesting, so let's take a closer look. In the response, we can see that the media type is indeed `application/x-msdownload`, indicating that this is a binary file. So we will export this file to our disk using the `Export Objects` function of wireshark.
 
