@@ -52,6 +52,8 @@ Taking a closer look at the functions shows that we have access to the source co
 
 Armed with this functionality, we should be able to easily decrypt the encrypted communications that we saw earlier in the network capture.
 
+### Solution
+
 We could transcribe this into python (which is a good exercise), but we can also utilize dnspy to use the binary itself to decrypt it's own communications.
 
 With dnspy, we are able to edit a copy of the source code, and subsequently compile and run the program.
